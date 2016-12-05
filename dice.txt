@@ -1,0 +1,18 @@
+S -> S | (S) | S op S
+op -> <*> | <+> | <-> | </> | <d>
+---
+Operation precedency
+left-to-right
+() []
+d
+* /
++ -
+---
+dA == 1dA
+-A = 0-A
++A = 0+A
+[A, B, C] == choose([A, B, C])
+Ad1 == A
+AdB == sum([randint(1, B) for _ in range(A)])
+
+---
