@@ -1,0 +1,7 @@
+calculation min max | calculation result
+1d6 1 6
+(1+1)*2 4
+7/2 3
+7.0/2 3.5
+1/2 0
+1.0/2 0.5
