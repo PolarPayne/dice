@@ -14,8 +14,8 @@ def test():
             print(line)
             line = line.strip().split()
             if len(line) == 2:
-                g(line[0], line[1])
+                yield g, line[0], line[1]
             elif len(line) == 3:
-                f(line[0], line[1], line[2])
+                yield f, line[0], line[1], line[2]
             else:
                 raise Exception("Badly formatted tests.txt file.")
