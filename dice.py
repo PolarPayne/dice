@@ -1,5 +1,6 @@
 from pprint import pprint
 
+
 class MalformedInput(Exception):
     pass
 
@@ -26,6 +27,7 @@ def calc_ast(s):
     print(ast[-1])
     return ast
 
+
 def read_num(s):
     out = ""
 
@@ -49,6 +51,7 @@ def read_num(s):
         except ValueError:
             raise MalformedInput("{} is malformed.".format(out))
 
+
 def read_op(s):
     if s[0] == "D":
         t = "dice"
@@ -66,6 +69,7 @@ def read_op(s):
         raise MalformedInput("{} is not an operator.", read_op(s[0]))
 
     return (t, None), s[1:]
+
 
 def read_par(s):
     if s[0] == "(":
