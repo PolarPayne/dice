@@ -1,120 +1,140 @@
 from pprint import pprint
+from functools import lru_cache
+from collections import namedtuple
+
+NUMS = "0123456789."
+WHITE_SPACE = " \t"
+VALID_CHARS = NUMS + WHITE_SPACE + "()[],dD^*/+-"
 
 
-class MalformedInput(Exception):
+class CompileError(Exception):
     pass
 
-nums = "0123456789."
-ops = "dD+-*/"
-valid_chars = nums + ",()[]" + ops
 
-def calc_ast(s):
-    ast = []
-    while len(s) > 0:
-        # print("str: \"{}\"".format(s))
-        if s[0] in nums:
-            a, s = read_num(s)
-        elif s[0] in ops:
-            a, s = read_op(s)
-        elif s[0] == "(":
-            a, s = read_par(s)
-        elif s[0] == "[":
-            a, s = read_list(s)
+class ExceptionFactory:
+    def __init__(self, s):
+        self.s = s
+        self.l = 0
+
+    def inc(self, l):
+        self.l = len(self.s) - len(l)
+
+    def __call__(self, msg, ex_len=0):
+        return CompileError(("{}\n" + " " * self.l + "^" + "~" * ex_len + " {}").format(
+            self.s,
+            msg
+        ))
+
+
+def execute(ops):
+    pass
+
+
+def shunt(ops):
+    pass
+
+
+@lru_cache(maxsize=512)
+def to_tokens(s):
+    def pre_parse(s):
+        return s.replace(",", "),(").replace("[", "[(").replace("]", ")]")
+
+    def read_num(s):
+        out = ""
+
+        for a, i in enumerate(s):
+            if i in NUMS:
+                out += i
+            elif i not in VALID_CHARS:
+                raise RuntimeError("Invalid character in number.")
+            else:
+                break
         else:
-            raise MalformedInput("{} is not a valid character.".format(s[0]))
-        ast.append(a)
-        # pprint(ast)
-    print(ast[-1])
-    return ast
+            a = len(s)
 
-
-def read_num(s):
-    out = ""
-
-    for a, i in enumerate(s):
-        if i in nums:
-            out += i
-        elif i not in valid_chars:
-            raise MalformedInput("{} is not a valid character.".format(i))
-        else:
-            break
-    else:
-        a = len(s)
-
-    try:
-        # print(a, s, s[a:])
-        return ("int", int(out)), s[a:]
-        # return float(out) if "." in out else int(out), s[a:]
-    except ValueError:
         try:
-            return ("float", float(out)), s[a:]
+            return ("int", int(out)), s[a:]
         except ValueError:
-            raise MalformedInput("{} is malformed.".format(out))
+            try:
+                return ("float", float(out)), s[a:]
+            except ValueError:
+                raise RuntimeError("Badly formatted number")
 
-
-def read_op(s):
-    if s[0] == "D":
-        t = "dice"
-    elif s[0] == "d":
-        t = "dice"
-    elif s[0] == "+":
-        t = "plus"
-    elif s[0] == "-":
-        t = "minus"
-    elif s[0] == "/":
-        t = "div"
-    elif s[0] == "*":
-        t = "mul"
-    else:
-        raise MalformedInput("{} is not an operator.", read_op(s[0]))
-
-    return (t, None), s[1:]
-
-
-def read_par(s):
-    if s[0] == "(":
-        out = ""
-        s = s[1:]
-        c = 1
-        while c > 0 and len(s):
-            if s[0] == "(":
-                c += 1
-            elif s[0] == ")":
-                c -= 1
-                if c == 0:
-                    break
-                elif c < 0:
-                    raise MalformedInput()
-            out += s[0]
+    def read_dice(s):
+        out = []
+        if s[0] in "dD":
+            out.append(("dice", None))
             s = s[1:]
-        return ("par", calc_ast(out)), s[1:]
 
-    raise MalformedInput()
+        if s[0] in NUMS:
+            a, s = read_num(s)
+            if a[0] == "int":
+                a = "[" + ",".join(str(i) for i in range(1, a[1]+1)) + "]"
+                for i in to_tokens(a):
+                    for j in i:
+                        out.append(j)
+            else:
+                raise RuntimeError("Dice can't have non integer sides")
+        elif s[0] == "[" or s[0] == "(" or s[0] in WHITE_SPACE:
+            pass
+            # a, s = to_tokens(s)
+        else:
+            raise RuntimeError("Invalid value for dice operator")
 
+        return out, s
 
-def read_list(s):
-    if s[0] == "[":
-        out = ""
-        s = s[1:]
-        c = 1
-        while c > 0 and len(s):
-            if s[0] == "[":
-                c += 1
-            elif s[0] == "]":
-                c -= 1
-                if c == 0:
-                    break
-                elif c < 0:
-                    raise MalformedInput()
-            out += s[0]
+    out = []
+    s = pre_parse(s)
+
+    while len(s):
+        # print(s)
+        if s[0] in NUMS:
+            a, s = read_num(s)
+        elif s[0] == "(":
+            a, s = ("l_paren", None), s[1:]
+        elif s[0] == ")":
+            a, s = ("r_paren", None), s[1:]
+        elif s[0] == "[":
+            a, s = ("l_brack", None), s[1:]
+        elif s[0] == "]":
+            a, s = ("r_brack", None), s[1:]
+        elif s[0] == ",":
+            a, s = ("comma", None), s[1:]
+        elif s[0] in "dD":
+            a, s = read_dice(s)
+            # a, s = ("dice", None), s[1:]
+        elif s[0] == "^":
+            a, s = ("exp", None), s[1:]
+        elif s[0] == "*":
+            a, s = ("mult", None), s[1:]
+        elif s[0] == "/":
+            a, s = ("div", None), s[1:]
+        elif s[0] == "+":
+            a, s = ("plus", None), s[1:]
+        elif s[0] == "-":
+            a, s = ("minus", None), s[1:]
+        elif s[0] in WHITE_SPACE:
             s = s[1:]
-        out = tuple(out.split(","))
-        return ("list", tuple(calc_ast(i) for i in out)), s[1:]
+        else:
+            return a, s
+        # print(s, a, out)
 
-    raise MalformedInput()
+        if type(a) is tuple:
+            out.append(a)
+        elif type(a) is list:
+            for i in a:
+                out.append(i)
+        else:
+            raise RuntimeError("a is of wrong type, was {} but expected tuple or list".format(type(a)))
+
+    return out, s
 
 if __name__ == "__main__":
     import sys
     for i in sys.argv[1:]:
-        pprint(calc_ast(i))
-    # print(dice("\n".join(sys.argv[1:])))
+        try:
+            a, s = to_tokens(i)
+        except CompileError as e:
+            print(e)
+        pprint(a)
+
