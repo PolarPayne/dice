@@ -84,6 +84,18 @@ def tokenize(s):
 
         return operators.NumToken(out), s[a:]
 
+    def read_op(out, s):
+        if s[0] in operators.double_op_chars:
+            if len(s) > 1:
+                if s[1] == "=":
+                    return operators.ops[s[0:2]], s[2:]
+
+        if (len(out) == 0 or out[-1].is_op()):
+            if s[0] in operators.binary_to_unary:
+                s = operators.binary_to_unary[s[0]] + s[1:]
+        
+        return operators.ops[s[0]], s[1:]
+
     out = []
 
     while len(s):
@@ -93,10 +105,7 @@ def tokenize(s):
         elif s[0] in NUMS:
             a, s = read_num(s)
         elif s[0] in VALID_CHARS:
-            if (len(out) == 0 or out[-1].is_op()) and \
-            s[0] in operators.binary_to_unary:
-                s = operators.binary_to_unary[s[0]] + s[1:]
-            a, s = operators.ops[s[0]], s[1:]
+            a, s = read_op(out, s)
         else:
             raise RuntimeError("Invalid character!")
 

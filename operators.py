@@ -103,19 +103,25 @@ class OpToken(Token):
         return self.prec >= value.prec
 
 op_chars = "+-*/^%=&|!()"
+double_op_chars = "<>!="
 ops = {
     "|": OpToken("|", 1, lambda a, b: a if a >= b else b),
     "&": OpToken("&", 2, lambda a, b: a if a < b else b),
-    "=": OpToken("=", 3, lambda a, b: 1 if a == b else 0),
-    "+": OpToken("+", 4, lambda a, b: a + b),
-    "-": OpToken("-", 4, lambda a, b: a - b),
-    "*": OpToken("*", 5, lambda a, b: a * b),
-    "/": OpToken("/", 5, lambda a, b: a / b),
-    "%": OpToken("%", 5, lambda a, b: a % b),
-    "^": OpToken("^", 6, lambda a, b: a ** b, left_assoc=False),
-    "!": OpToken("!", 7, lambda a: 1 if a == 0 else 0, unary=True),
-    "#": OpToken("#", 7, lambda a: -a, unary=True),
-    "$": OpToken("$", 7, lambda a: a, unary=True),
+    "==": OpToken("==", 3, lambda a, b: 1 if a == b else 0),
+    "!=": OpToken("!=", 3, lambda a, b: 1 if a != b else 0),
+    "<=": OpToken("==", 4, lambda a, b: 1 if a <= b else 0),
+    "<": OpToken("==", 4, lambda a, b: 1 if a < b else 0),
+    ">=": OpToken("==", 4, lambda a, b: 1 if a >= b else 0),
+    ">": OpToken("==", 4, lambda a, b: 1 if a > b else 0),
+    "+": OpToken("+", 5, lambda a, b: a + b),
+    "-": OpToken("-", 5, lambda a, b: a - b),
+    "*": OpToken("*", 6, lambda a, b: a * b),
+    "/": OpToken("/", 6, lambda a, b: a / b),
+    "%": OpToken("%", 6, lambda a, b: a % b),
+    "^": OpToken("^", 7, lambda a, b: a ** b, left_assoc=False),
+    "!": OpToken("!", 8, lambda a: 1 if a == 0 else 0, unary=True),
+    "#": OpToken("#", 8, lambda a: -a, unary=True),
+    "$": OpToken("$", 8, lambda a: a, unary=True),
     "(": OpToken("(", 9, lambda a, b: None, bracket="("),
     ")": OpToken(")", 0, lambda a, b: None, bracket=")")
 }
