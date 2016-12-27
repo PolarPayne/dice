@@ -6,6 +6,12 @@ class TokenType(Enum):
     int = 1
     float = 2
 
+
+class Bracket(Enum):
+    left = 0
+    right = 1
+
+
 class Token:
     def __init__(self, token_type):
         self.token_type = token_type
@@ -36,7 +42,7 @@ class NumToken(Token):
                 raise RuntimeError("Badly formatted number")
 
     def __str__(self):
-        return "{} type={}".format(
+        return "{:<3} type={}".format(
             self.value,
             "int" if type(self.value) is int else "float"
         )
@@ -59,13 +65,13 @@ class OpToken(Token):
         self.bracket = bracket
     
     def is_left_bracket(self):
-        return self.bracket == "("
+        return self.bracket is Bracket.left
 
     def is_right_bracket(self):
-        return self.bracket == ")"
+        return self.bracket is Bracket.right
 
     def __str__(self):
-        return "{} prec={} assoc={} unary={}".format(
+        return "{:<3} prec={} assoc={} unary={}".format(
             self.oper,
             self.prec,
             "left" if self.left_assoc else "right",
@@ -113,8 +119,8 @@ ops = {
     "!": OpToken("!", 8, lambda a: 1 if a == 0 else 0, unary=True),
     "#": OpToken("#", 8, lambda a: -a, unary=True),
     "$": OpToken("$", 8, lambda a: a, unary=True),
-    "(": OpToken("(", 9, lambda a, b: None, bracket="("),
-    ")": OpToken(")", 0, lambda a, b: None, bracket=")")
+    "(": OpToken("(", 9, lambda a, b: None, bracket=Bracket.left),
+    ")": OpToken(")", 0, lambda a, b: None, bracket=Bracket.right)
 }
 
 binary_to_unary = {
