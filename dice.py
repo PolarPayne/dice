@@ -86,9 +86,8 @@ def tokenize(s):
 
     def read_op(out, s):
         if s[0] in operators.double_op_chars:
-            if len(s) > 1:
-                if s[1] == "=":
-                    return operators.ops[s[0:2]], s[2:]
+            if len(s) > 1 and s[0:2] in operators.double_ops:
+                return operators.ops[s[0:2]], s[2:]
 
         if (len(out) == 0 or out[-1].is_op()):
             if s[0] in operators.binary_to_unary:

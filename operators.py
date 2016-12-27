@@ -102,17 +102,18 @@ class OpToken(Token):
             raise TypeError("Value is not of type OpToken.")
         return self.prec >= value.prec
 
-op_chars = "+-*/^%=&|!()"
-double_op_chars = "<>!="
+op_chars = "+-*/^%=&|!()<>"
+double_ops = ("==", "!=", "<=", ">=")
+double_op_chars = "".join(set("".join(double_ops).split()))
 ops = {
     "|": OpToken("|", 1, lambda a, b: a if a >= b else b),
     "&": OpToken("&", 2, lambda a, b: a if a < b else b),
     "==": OpToken("==", 3, lambda a, b: 1 if a == b else 0),
     "!=": OpToken("!=", 3, lambda a, b: 1 if a != b else 0),
-    "<=": OpToken("==", 4, lambda a, b: 1 if a <= b else 0),
-    "<": OpToken("==", 4, lambda a, b: 1 if a < b else 0),
-    ">=": OpToken("==", 4, lambda a, b: 1 if a >= b else 0),
-    ">": OpToken("==", 4, lambda a, b: 1 if a > b else 0),
+    "<=": OpToken("<=", 4, lambda a, b: 1 if a <= b else 0),
+    "<": OpToken("<", 4, lambda a, b: 1 if a < b else 0),
+    ">=": OpToken(">=", 4, lambda a, b: 1 if a >= b else 0),
+    ">": OpToken(">", 4, lambda a, b: 1 if a > b else 0),
     "+": OpToken("+", 5, lambda a, b: a + b),
     "-": OpToken("-", 5, lambda a, b: a - b),
     "*": OpToken("*", 6, lambda a, b: a * b),
