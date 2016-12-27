@@ -1,11 +1,8 @@
 import dice
 
-ITERS = 2**16
-
-
 def test():
     def g(s, res):
-        assert(dice.calculate(s) == res)
+        assert(dice.execute(s) == res)
 
     with open("tests.txt", "r") as file:
         file.readline()
@@ -13,7 +10,7 @@ def test():
             print(line)
             line = line.strip().split()
             if len(line) == 2:
-                yield g, line[0], line[1]
+                yield g, line[0], float(line[1])
             elif len(line) == 0:
                 continue
             else:

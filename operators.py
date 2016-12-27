@@ -102,6 +102,7 @@ class OpToken(Token):
             raise TypeError("Value is not of type OpToken.")
         return self.prec >= value.prec
 
+op_chars = "+-*/^%=&|!()"
 ops = {
     "+": OpToken("+", 1, lambda a, b: a + b),
     "-": OpToken("-", 1, lambda a, b: a - b),
@@ -114,6 +115,11 @@ ops = {
     "|": OpToken("|", 5, lambda a, b: a if a >= b else b),
     "!": OpToken("!", 6, lambda a: 1 if a == 0 else 0, unary=True),
     "#": OpToken("#", 7, lambda a: -a, unary=True),
+    "$": OpToken("$", 7, lambda a: a, unary=True),
     "(": OpToken("(", 9, lambda a, b: None, bracket="("),
     ")": OpToken(")", 0, lambda a, b: None, bracket=")")
+}
+binary_to_unary = {
+    "-": "#",
+    "+": "$"
 }

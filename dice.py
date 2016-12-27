@@ -5,7 +5,7 @@ import operators
 
 NUMS = "0123456789."
 WHITE_SPACE = " _\t"
-VALID_CHARS = NUMS + WHITE_SPACE + "".join(operators.ops)
+VALID_CHARS = NUMS + WHITE_SPACE + "".join(operators.op_chars)
 
 @lru_cache(maxsize=512)
 def execute(s):
@@ -15,7 +15,6 @@ def execute(s):
 @lru_cache(maxsize=512)
 def calculate(tokens):
     out = []
-    pprint(tokens)
 
     for token in tokens:
         if token.is_num():
@@ -94,8 +93,9 @@ def tokenize(s):
         elif s[0] in NUMS:
             a, s = read_num(s)
         elif s[0] in VALID_CHARS:
-            if (len(out) == 0 or out[-1].is_op()) and s[0] == "-":
-                s = "#" + s[1:]
+            if (len(out) == 0 or out[-1].is_op()) and \
+            s[0] in operators.binary_to_unary:
+                s = operators.binary_to_unary[s[0]] + s[1:]
             a, s = operators.ops[s[0]], s[1:]
         else:
             raise RuntimeError("Invalid character!")
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             # pprint(a)
             a = shunt(a)
             # pprint(a)
-            a = execute(a)
+            a = calculate(a)
             print(a)
         except RuntimeError as e:
             print(e)
