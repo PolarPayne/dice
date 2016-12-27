@@ -123,6 +123,7 @@ ops = {
     "(": OpToken("(", 9, lambda a, b: None, bracket="("),
     ")": OpToken(")", 0, lambda a, b: None, bracket=")")
 }
+
 binary_to_unary = {
     "-": "#",
     "+": "$"
