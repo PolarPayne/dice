@@ -4,7 +4,7 @@ from functools import lru_cache
 import operators
 
 NUMS = "0123456789."
-WHITE_SPACE = " _\t"
+WHITE_SPACE = " \t"
 VALID_CHARS = NUMS + WHITE_SPACE + operators.op_chars
 
 @lru_cache(maxsize=512)
