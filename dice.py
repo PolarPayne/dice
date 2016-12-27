@@ -1,140 +1,118 @@
 from pprint import pprint
 from functools import lru_cache
-from collections import namedtuple
+
+import operators
 
 NUMS = "0123456789."
-WHITE_SPACE = " \t"
-VALID_CHARS = NUMS + WHITE_SPACE + "()[],dD^*/+-"
+WHITE_SPACE = " _\t"
+VALID_CHARS = NUMS + WHITE_SPACE + "".join(operators.ops)
 
-
-class CompileError(Exception):
-    pass
-
-
-class ExceptionFactory:
-    def __init__(self, s):
-        self.s = s
-        self.l = 0
-
-    def inc(self, l):
-        self.l = len(self.s) - len(l)
-
-    def __call__(self, msg, ex_len=0):
-        return CompileError(("{}\n" + " " * self.l + "^" + "~" * ex_len + " {}").format(
-            self.s,
-            msg
-        ))
-
-
-def execute(ops):
-    pass
-
-
-def shunt(ops):
-    pass
+@lru_cache(maxsize=512)
+def execute(s):
+    return calculate(shunt(tokenize(s)))
 
 
 @lru_cache(maxsize=512)
-def to_tokens(s):
-    def pre_parse(s):
-        return s.replace(",", "),(").replace("[", "[(").replace("]", ")]")
+def calculate(tokens):
+    out = []
+    pprint(tokens)
 
+    for token in tokens:
+        if token.is_num():
+            out.append(token.value)
+        elif token.is_op():
+            if token.unary:
+                a = out.pop()
+                out.append(token.calc(a))
+            else:
+                b, a = out.pop(), out.pop()
+                out.append(token.calc(a, b))
+        else:
+            raise RuntimeError("This should never happen.")
+    return out[0]
+
+
+@lru_cache(maxsize=512)
+def shunt(tokens):
+    out = []
+    ops = []
+
+    for token in tokens:
+        if token.is_num():
+            out.append(token)
+
+        elif token.is_op():
+            if token.is_right_bracket():
+                while True:
+                    top = ops.pop()
+                    if top.is_left_bracket():
+                        break
+                    out.append(top)
+
+            elif len(ops) == 0 or ops[-1] <= token and token.left_assoc:
+                ops.append(token)
+            else:
+                while len(ops) > 0 and ops[-1] > token:
+                    top = ops.pop()
+                    if top.is_left_bracket():
+                        ops.append(top)
+                        break
+                    out.append(top)
+                ops.append(token)
+        else:
+            raise RuntimeError("This should never happen.")
+
+    while len(ops) > 0:
+        out.append(ops.pop())
+
+    return tuple(out)
+
+
+@lru_cache(maxsize=512)
+def tokenize(s):
     def read_num(s):
         out = ""
 
         for a, i in enumerate(s):
             if i in NUMS:
                 out += i
-            elif i not in VALID_CHARS:
-                raise RuntimeError("Invalid character in number.")
+            elif i in WHITE_SPACE:
+                continue
             else:
                 break
         else:
             a = len(s)
 
-        try:
-            return ("int", int(out)), s[a:]
-        except ValueError:
-            try:
-                return ("float", float(out)), s[a:]
-            except ValueError:
-                raise RuntimeError("Badly formatted number")
-
-    def read_dice(s):
-        out = []
-        if s[0] in "dD":
-            out.append(("dice", None))
-            s = s[1:]
-
-        if s[0] in NUMS:
-            a, s = read_num(s)
-            if a[0] == "int":
-                a = "[" + ",".join(str(i) for i in range(1, a[1]+1)) + "]"
-                for i in to_tokens(a):
-                    for j in i:
-                        out.append(j)
-            else:
-                raise RuntimeError("Dice can't have non integer sides")
-        elif s[0] == "[" or s[0] == "(" or s[0] in WHITE_SPACE:
-            pass
-            # a, s = to_tokens(s)
-        else:
-            raise RuntimeError("Invalid value for dice operator")
-
-        return out, s
+        return operators.NumToken(out), s[a:]
 
     out = []
-    s = pre_parse(s)
 
     while len(s):
-        # print(s)
-        if s[0] in NUMS:
-            a, s = read_num(s)
-        elif s[0] == "(":
-            a, s = ("l_paren", None), s[1:]
-        elif s[0] == ")":
-            a, s = ("r_paren", None), s[1:]
-        elif s[0] == "[":
-            a, s = ("l_brack", None), s[1:]
-        elif s[0] == "]":
-            a, s = ("r_brack", None), s[1:]
-        elif s[0] == ",":
-            a, s = ("comma", None), s[1:]
-        elif s[0] in "dD":
-            a, s = read_dice(s)
-            # a, s = ("dice", None), s[1:]
-        elif s[0] == "^":
-            a, s = ("exp", None), s[1:]
-        elif s[0] == "*":
-            a, s = ("mult", None), s[1:]
-        elif s[0] == "/":
-            a, s = ("div", None), s[1:]
-        elif s[0] == "+":
-            a, s = ("plus", None), s[1:]
-        elif s[0] == "-":
-            a, s = ("minus", None), s[1:]
-        elif s[0] in WHITE_SPACE:
+        if s[0] in WHITE_SPACE:
             s = s[1:]
+            continue
+        elif s[0] in NUMS:
+            a, s = read_num(s)
+        elif s[0] in VALID_CHARS:
+            if (len(out) == 0 or out[-1].is_op()) and s[0] == "-":
+                s = "#" + s[1:]
+            a, s = operators.ops[s[0]], s[1:]
         else:
-            return a, s
-        # print(s, a, out)
+            raise RuntimeError("Invalid character!")
 
-        if type(a) is tuple:
-            out.append(a)
-        elif type(a) is list:
-            for i in a:
-                out.append(i)
-        else:
-            raise RuntimeError("a is of wrong type, was {} but expected tuple or list".format(type(a)))
+        out.append(a)
 
-    return out, s
+    return tuple(out)
 
 if __name__ == "__main__":
     import sys
     for i in sys.argv[1:]:
         try:
-            a, s = to_tokens(i)
-        except CompileError as e:
+            a = tokenize(i)
+            # pprint(a)
+            a = shunt(a)
+            # pprint(a)
+            a = execute(a)
+            print(a)
+        except RuntimeError as e:
             print(e)
-        pprint(a)
-

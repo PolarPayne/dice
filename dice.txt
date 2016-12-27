@@ -8,11 +8,13 @@ d
 * /
 + -
 ---
-dA == 1dA
+AdB == 1dB + ...(A times)... + 1dB
+Ad1 == A
+dA == 1dA == [1,..,A]
+AdB == sum([randint(1, B) for _ in range(A)])
 -A = 0-A
 +A = 0+A
 [A, B, C] == choose([A, B, C])
-Ad1 == A
-AdB == sum([randint(1, B) for _ in range(A)])
-
 ---
+2d(d2) == 2d([1,2])
+(d2)d2 == d2d2 == 

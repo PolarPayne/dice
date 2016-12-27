@@ -1,12 +1,11 @@
-def test():
-    def f(c, mi, ma):
-        float(mi), float(ma)
-        assert mi != ma
-        print(c, mi, ma)
+import dice
 
-    def g(c, r):
-        float(r)
-        print(c, r)
+ITERS = 2**16
+
+
+def test():
+    def g(s, res):
+        assert(dice.calculate(s) == res)
 
     with open("tests.txt", "r") as file:
         file.readline()
@@ -15,7 +14,7 @@ def test():
             line = line.strip().split()
             if len(line) == 2:
                 yield g, line[0], line[1]
-            elif len(line) == 3:
-                yield f, line[0], line[1], line[2]
+            elif len(line) == 0:
+                continue
             else:
                 raise Exception("Badly formatted tests.txt file.")
