@@ -102,9 +102,6 @@ class OpToken(Token):
             raise TypeError("Value is not of type OpToken.")
         return self.prec >= value.prec
 
-op_chars = "+-*/^%=&|!()<>"
-double_ops = ("==", "!=", "<=", ">=")
-double_op_chars = "".join(set("".join(double_ops).split()))
 ops = {
     "|": OpToken("|", 1, lambda a, b: a if a >= b else b),
     "&": OpToken("&", 2, lambda a, b: a if a < b else b),
@@ -130,3 +127,6 @@ binary_to_unary = {
     "-": "#",
     "+": "$"
 }
+
+op_chars = "".join(set("".join(ops)))
+double_op_chars = "".join(set("".join(i for i in ops if len(i) == 2)))
