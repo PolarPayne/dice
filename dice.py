@@ -5,7 +5,7 @@ import operators
 
 NUMS = "0123456789."
 WHITE_SPACE = " _\t"
-VALID_CHARS = NUMS + WHITE_SPACE + "".join(operators.op_chars)
+VALID_CHARS = NUMS + WHITE_SPACE + operators.op_chars
 
 @lru_cache(maxsize=512)
 def execute(s):
