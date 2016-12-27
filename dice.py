@@ -89,7 +89,7 @@ def tokenize(s):
             if len(s) > 1 and s[0:2] in operators.ops:
                 return operators.ops[s[0:2]], s[2:]
 
-        if (len(out) == 0 or out[-1].is_op()):
+        if len(out) == 0 or out[-1].is_op():
             if s[0] in operators.binary_to_unary:
                 s = operators.binary_to_unary[s[0]] + s[1:]
         

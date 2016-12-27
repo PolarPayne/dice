@@ -49,11 +49,6 @@ class NumToken(Token):
     def __hash__(self):
         return hash((self.value, self.token_type))
 
-    def __eq__(self, value):
-        if type(value) is not type(self):
-            return False
-        return self.value == value.value
-
 
 class OpToken(Token):
     def __init__(self, oper, prec, calc, left_assoc=True, unary=False, bracket=None):
