@@ -1,7 +1,5 @@
 from enum import Enum
 
-import operator
-
 
 class TokenType(Enum):
     op = 0
