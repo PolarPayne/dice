@@ -1,5 +1,6 @@
 from enum import Enum
 from random import randint
+from math import ceil, floor
 
 
 class TokenType(Enum):
@@ -31,14 +32,27 @@ class Token:
 
 
 class NumToken(Token):
-    def __init__(self, value):
+    def __init__(self, value, options):
         try:
             self.value = int(value)
             super().__init__(TokenType.int)
         except ValueError:
             try:
-                self.value = float(value)
-                super().__init__(TokenType.float)
+                if options["rounding_mode"] == "ceil":
+                    self.value = ceil(float(value))
+                    super().__init__(TokenType.int)
+                elif options["rounding_mode"] == "floor":
+                    self.value = floor(float(value))
+                    super().__init__(TokenType.int)
+                elif options["rounding_mode"] == "none":
+                    self.value = float(value)
+                    super().__init__(TokenType.float)
+                    
+                    if options["only_ints"]:
+                        raise RuntimeError("Non-integer encountered in only_ints mode.")
+                else:
+                    raise RuntimeError("Invalid rounding mode option.")
+
             except ValueError:
                 raise RuntimeError("Badly formatted number")
 
@@ -102,30 +116,117 @@ class OpToken(Token):
             raise TypeError("Value is not of type OpToken.")
         return self.prec >= value.prec
 
+
+def op_or(a, b, options):
+    return a if a >= b else b
+
+
+def op_and(a, b, options):
+    return a if a < b else b
+
+
+def op_eq(a, b, options):
+    return 1 if a == b else 0
+
+
+def op_neq(a, b, options):
+    return 1 if a != b else 0
+
+
+def op_le(a, b, options):
+    return 1 if a <= b else 0
+
+
+def op_lt(a, b, options):
+    return 1 if a < b else 0
+
+
+def op_ge(a, b, options):
+    return 1 if a >= b else 0
+
+
+def op_gt(a, b, options):
+    return 1 if a > b else 0
+
+
+def op_add(a, b, options):
+    return a + b
+
+
+def op_sub(a, b, options):
+    return a - b
+
+
+def op_mul(a, b, options):
+    return a * b
+
+
+def op_div(a, b, options):
+    if options["only_ints"]:
+        return a // b
+    return a / b
+
+
+def op_mod(a, b, options):
+    return a & b
+
+
+def op_pow(a, b, options):
+    return a ** b
+
+
+def op_dice(a, b, options):
+    if type(a) is int and type(b) is int:
+        return sum([randint(1, b) for _ in range(a)])
+    raise RuntimeError("Dice operator requires ints.")
+
+
+def op_udice(a, options):
+    if type(a) is int:
+        return randint(1, a)
+    raise RuntimeError("Dice operator requires ints.")
+
+
+def op_not(a, options):
+    return 1 if a == 0 else 0
+
+
+def op_usub(a, options):
+    return -a
+
+
+def op_id(a, options):
+    return a
+
+
+def op_brackets(*args):
+    raise RuntimeError("Brackets are not operators!")
+
 ops = {
-    "|": OpToken("|", 1, lambda a, b: a if a >= b else b),
-    "&": OpToken("&", 2, lambda a, b: a if a < b else b),
-    "==": OpToken("==", 3, lambda a, b: 1 if a == b else 0),
-    "!=": OpToken("!=", 3, lambda a, b: 1 if a != b else 0),
-    "<=": OpToken("<=", 4, lambda a, b: 1 if a <= b else 0),
-    "<": OpToken("<", 4, lambda a, b: 1 if a < b else 0),
-    ">=": OpToken(">=", 4, lambda a, b: 1 if a >= b else 0),
-    ">": OpToken(">", 4, lambda a, b: 1 if a > b else 0),
-    "+": OpToken("+", 5, lambda a, b: a + b),
-    "-": OpToken("-", 5, lambda a, b: a - b),
-    "*": OpToken("*", 6, lambda a, b: a * b),
-    "/": OpToken("/", 6, lambda a, b: a / b),
-    "%": OpToken("%", 6, lambda a, b: a % b),
-    "^": OpToken("^", 7, lambda a, b: a ** b, left_assoc=False),
-    "d": OpToken("d", 7, lambda a, b: sum([randint(1, b) for _ in range(a)]), left_assoc=False),
-    "D": OpToken("D", 8, lambda b: sum([randint(1, b) for _ in range(1)]), left_assoc=False, unary=True),
-    "!": OpToken("!", 8, lambda a: 1 if a == 0 else 0, unary=True),
+    "|":  OpToken("|",  1, op_or                                 ),
+    "&":  OpToken("&",  2, op_and                                ),
+    "==": OpToken("==", 3, op_eq                                 ),
+    "!=": OpToken("!=", 3, op_neq                                ),
+    "<=": OpToken("<=", 4, op_le                                 ),
+    "<":  OpToken("<",  4, op_lt                                 ),
+    ">=": OpToken(">=", 4, op_ge                                 ),
+    ">":  OpToken(">",  4, op_gt                                 ),
+    "+":  OpToken("+",  5, op_add                                ),
+    "-":  OpToken("-",  5, op_sub                                ),
+    "*":  OpToken("*",  6, op_mul                                ),
+    "/":  OpToken("/",  6, op_div                                ),
+    "%":  OpToken("%",  6, op_mod                                ),
+    "^":  OpToken("^",  7, op_pow,   left_assoc=False            ),
+    "d":  OpToken("d",  7, op_dice,  left_assoc=False            ),
+    "D":  OpToken("D",  8, op_udice, left_assoc=False, unary=True),
+    "!":  OpToken("!",  8, op_not,                     unary=True),
     # unary minus
-    "#": OpToken("#", 8, lambda a: -a, unary=True),
+    "#":  OpToken("#",  8, op_usub,                    unary=True),
     # unary plus
-    "$": OpToken("$", 8, lambda a: a, unary=True),
-    "(": OpToken("(", 9, lambda a, b: None, bracket=Bracket.left),
-    ")": OpToken(")", 0, lambda a, b: None, bracket=Bracket.right)
+    "$":  OpToken("$",  8, op_id,                      unary=True),
+
+    "(":  OpToken("(",  9, op_brackets, bracket=Bracket.left     ),
+    ")":  OpToken(")",  0, op_brackets, bracket=Bracket.right    )
 }
 
 binary_to_unary = {
@@ -134,5 +235,5 @@ binary_to_unary = {
     "d": "D"
 }
 
-op_chars = "".join(set("".join(ops)))
+op_chars = "|&=<>+-*/%^d()"
 double_op_chars = "".join(set("".join(i for i in ops if len(i) == 2)))

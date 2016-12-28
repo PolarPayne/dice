@@ -6,14 +6,36 @@ import operators
 NUMS = "0123456789."
 WHITE_SPACE = " \t"
 VALID_CHARS = NUMS + WHITE_SPACE + operators.op_chars
+DEFAULT_OPTIONS = {
+    "only_ints": False,
+    "rounding_mode": "none"  # none|ceil|floor
+}
 
-@lru_cache(maxsize=512)
-def execute(s):
-    return calculate(shunt(tokenize(s)))
+
+def execute(s, options=None):
+    opts = DEFAULT_OPTIONS.copy()
+
+    for line in map(str.lower, map(str.strip, s.split("\n"))):
+        i = line.split()
+        if len(i) == 0:
+            continue
+
+        if i[0] == "set":
+            if len(i) == 2:
+                opts[i[1]] = True
+            elif len(i) == 3:
+                opts[i[1]] = i[2]
+        elif i[0] == "unset":
+            if len(i) == 2:
+                opts[i[1]] = False
+        elif i[0] == "out":
+            yield calculate(shunt(tokenize(" ".join(i[1:]), opts), opts), opts)
 
 
-@lru_cache(maxsize=512)
-def calculate(tokens):
+def calculate(tokens, options=None):
+    if options is None:
+        options = DEFAULT_OPTIONS
+
     out = []
 
     for token in tokens:
@@ -22,17 +44,21 @@ def calculate(tokens):
         elif token.is_op():
             if token.unary:
                 a = out.pop()
-                out.append(token.calc(a))
+                out.append(token.calc(a, options))
             else:
                 b, a = out.pop(), out.pop()
-                out.append(token.calc(a, b))
+                out.append(token.calc(a, b, options))
         else:
             raise RuntimeError("This should never happen.")
-    return out[0]
+    if len(out) == 1:
+        return out[0]
+    raise RuntimeError("Invalid calculation.")
 
 
-@lru_cache(maxsize=512)
-def shunt(tokens):
+def shunt(tokens, options=None):
+    if options is None:
+        options = DEFAULT_OPTIONS
+        
     out = []
     ops = []
 
@@ -67,8 +93,7 @@ def shunt(tokens):
     return tuple(out)
 
 
-@lru_cache(maxsize=512)
-def tokenize(s):
+def tokenize(s, options=None):
     def read_num(s):
         out = ""
 
@@ -82,7 +107,7 @@ def tokenize(s):
         else:
             a = len(s)
 
-        return operators.NumToken(out), s[a:]
+        return operators.NumToken(out, options), s[a:]
 
     def read_op(out, s):
         if s[0] in operators.double_op_chars:
@@ -92,9 +117,12 @@ def tokenize(s):
         if len(out) == 0 or out[-1].is_op():
             if s[0] in operators.binary_to_unary:
                 s = operators.binary_to_unary[s[0]] + s[1:]
-        
+
         return operators.ops[s[0]], s[1:]
 
+    if options is None:
+        options = DEFAULT_OPTIONS
+        
     out = []
 
     while len(s):
@@ -114,13 +142,8 @@ def tokenize(s):
 
 if __name__ == "__main__":
     import sys
-    for i in sys.argv[1:]:
-        try:
-            a = tokenize(i)
-            # pprint(a)
-            a = shunt(a)
-            # pprint(a)
-            a = calculate(a)
-            print(a)
-        except RuntimeError as e:
-            print(e)
+    s = ""
+    for line in sys.stdin:
+        s += line
+    for i in execute(s):
+        print(i)
