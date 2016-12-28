@@ -1,6 +1,7 @@
 from pprint import pprint
 from functools import lru_cache
 
+from exceptions import *
 import operators
 
 NUMS = "0123456789."
@@ -15,8 +16,8 @@ DEFAULT_OPTIONS = {
 def execute(s, options=None):
     opts = DEFAULT_OPTIONS.copy()
 
-    for line in map(str.lower, map(str.strip, s.split("\n"))):
-        i = line.split()
+    for line in map(str.lower, s.split("\n")):
+        i = line.strip().split()
         if len(i) == 0:
             continue
 
