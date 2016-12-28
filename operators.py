@@ -1,4 +1,5 @@
 from enum import Enum
+from random import randint
 
 
 class TokenType(Enum):
@@ -21,7 +22,7 @@ class Token:
 
     def is_num(self):
         return not self.is_op()
-    
+
     def is_int(self):
         return self.token_type is TokenType.int
 
@@ -63,7 +64,7 @@ class OpToken(Token):
         self.left_assoc = left_assoc
         self.unary = unary
         self.bracket = bracket
-    
+
     def is_left_bracket(self):
         return self.bracket is Bracket.left
 
@@ -116,8 +117,12 @@ ops = {
     "/": OpToken("/", 6, lambda a, b: a / b),
     "%": OpToken("%", 6, lambda a, b: a % b),
     "^": OpToken("^", 7, lambda a, b: a ** b, left_assoc=False),
+    "d": OpToken("d", 7, lambda a, b: sum([randint(1, b) for _ in range(a)]), left_assoc=False),
+    "D": OpToken("D", 8, lambda b: sum([randint(1, b) for _ in range(1)]), left_assoc=False, unary=True),
     "!": OpToken("!", 8, lambda a: 1 if a == 0 else 0, unary=True),
+    # unary minus
     "#": OpToken("#", 8, lambda a: -a, unary=True),
+    # unary plus
     "$": OpToken("$", 8, lambda a: a, unary=True),
     "(": OpToken("(", 9, lambda a, b: None, bracket=Bracket.left),
     ")": OpToken(")", 0, lambda a, b: None, bracket=Bracket.right)
@@ -125,7 +130,8 @@ ops = {
 
 binary_to_unary = {
     "-": "#",
-    "+": "$"
+    "+": "$",
+    "d": "D"
 }
 
 op_chars = "".join(set("".join(ops)))
