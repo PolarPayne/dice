@@ -1,10 +1,11 @@
 * documentation
-* c style define
 * multiline lines
 * variables
 * operators
   * choose
   * improved dice operator
+* if, elif, endif
+* while, for
 * lists ?
 * functions ?
 * code colouring
