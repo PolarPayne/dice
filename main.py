@@ -10,12 +10,7 @@ def index():
     if request.method == "POST":
         code = request.data.decode("utf-8")
         
-        return json.jsonify({
-            "code": code,
-            "out": list(dice.execute(code)),
-            "warnings": [],
-            "errors": []
-        })
+        return json.jsonify(dice.execute(code))
 
     return render_template("index.html", code="")
 
