@@ -13,7 +13,14 @@ function toggleTipsHints() {
     return false;
 }
 
-var codeElement = document.getElementById("code");
+var codeElement = document.getElementById("code"),
+    outElement = document.getElementById("out"),
+    outUlElement = document.getElementById("out-ul"),
+    errorsElement = document.getElementById("errors"),
+    errorsUlElement = document.getElementById("errors-ul"),
+    warningsElement = document.getElementById("warnings"),
+    warningsUlElement = document.getElementById("warnings-ul");
+
 codeElement.addEventListener("keypress", execute);
 codeElement.focus();
 
@@ -33,6 +40,20 @@ function execute(e) {
             }
             var data = JSON.parse(xhr.responseText);
             console.log(data);
+            
+            function appendAllToElement(element, list) {
+                var li = null;
+                element.innerHTML = "";
+                for (var i = 0; i < list.length; i++) {
+                    li = document.createElement("li");
+                    li.innerText = list[i];
+                    element.appendChild(li);
+                }
+            }
+
+            appendAllToElement(outUlElement, data.out);
+            appendAllToElement(errorsUlElement, data.errors);
+            appendAllToElement(warningsUlElement, data.warnings);
         }
     }
     xhr.send(code);

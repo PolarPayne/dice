@@ -1,1 +1,1 @@
-from compiler import execute, execute_single
+from .compiler import execute, execute_single

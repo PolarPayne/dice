@@ -12,7 +12,13 @@
     <h1>Max Roller</h1>
     <hr>
 
-    <h2 onclick="return toggleTipsHints()" style="cursor: pointer;" title="Click to toggle tips and hints.">Tips & hints</h2>
+    <h2 onclick="return toggleTipsHints()"
+        style="cursor: pointer;"
+        title="Click to toggle tips and hints.">
+    
+        Tips & hints
+    
+    </h2>
     <div id="tips-hints">
         <p>ctrl + enter to execute.</p>
     </div>
@@ -22,6 +28,12 @@
         <button id="execute-button" type="submit">Execute</button>
     </form>
     <hr>
+
+    <div id="out">
+        <h3>Output</h3>
+        <ul id="out-ul">
+        </ul>
+    </div>
 
     <div id="errors">
         <h3>Errors</h3>

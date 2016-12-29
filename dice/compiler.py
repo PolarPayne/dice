@@ -1,7 +1,7 @@
 from pprint import pprint
 from functools import lru_cache
 
-import .operators
+from . import operators
 
 NUMS = "0123456789."
 WHITE_SPACE = " \t"
