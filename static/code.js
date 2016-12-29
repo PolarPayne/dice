@@ -14,30 +14,42 @@ function toggleTipsHints() {
 }
 
 var codeElement = document.getElementById("code"),
+    executeButton = document.getElementById("execute-button"),
     outElement = document.getElementById("out"),
     outUlElement = document.getElementById("out-ul"),
     errorsElement = document.getElementById("errors"),
     errorsUlElement = document.getElementById("errors-ul"),
     warningsElement = document.getElementById("warnings"),
-    warningsUlElement = document.getElementById("warnings-ul"),
-    genericError = "Something went wrong while doing the request.";
+    warningsUlElement = document.getElementById("warnings-ul");
 
 codeElement.addEventListener("keypress", execute);
 codeElement.focus();
 
 
 function execute(e) {
-    if (e !== undefined && !e.ctrlKey)
-        return;  
+    // allow user to execute with ctrl + enter
+    // only allow to execute once the previous one is complete
+    if ((e !== undefined && !e.ctrlKey) || executeButton.disabled)
+        return;
+    
+    console.log("execute()");
+
     var code = codeElement.value;
     
+    document.body.style = "cursor: wait;";
+    executeButton.disabled = true;
+    executeButton.textContent = "Executing...";
+
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/", true);
     xhr.setRequestHeader("Content-type", "text/plain");
     xhr.onreadystatechange = function() {
+        document.body.style = "";
+        executeButton.disabled = false;
+        executeButton.textContent = "Execute";
+
         if(xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
             if (xhr.getResponseHeader("Content-type") !== "application/json" || xhr.responseText === null) {
-                window.alert(genericError);
                 return;  // failure
             }
             var data = JSON.parse(xhr.responseText);
@@ -45,7 +57,9 @@ function execute(e) {
             
             function appendAllToElement(element, list) {
                 var li = null;
-                element.innerHTML = "";
+                while (element.firstChild)
+                    element.removeChild(element.firstChild);
+                
                 for (var i = 0; i < list.length; i++) {
                     li = document.createElement("li");
                     li.innerText = list[i];
@@ -59,7 +73,6 @@ function execute(e) {
             
             return;
         }
-
     }
     xhr.send(code);
     return false;
