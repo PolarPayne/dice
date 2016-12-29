@@ -1,18 +1,28 @@
+var tipsHintsElement = document.getElementById("tips-hints"),
+    tipsHintsVisible = true;
+
+
+function toggleTipsHints() {
+    if (tipsHintsVisible)
+        tipsHintsElement.style = "display: none";
+    else
+        tipsHintsElement.style = "";
+
+    tipsHintsVisible = !tipsHintsVisible;
+
+    return false;
+}
+
 var codeElement = document.getElementById("code");
 codeElement.addEventListener("keypress", execute);
 codeElement.focus();
 
-function toggleTipsHints() {
-    console.log("toggle tips and hints section");
-    return false;
-}
 
 function execute(e) {
     if (e !== undefined && !e.ctrlKey)
         return;  
     var code = codeElement.value;
-    console.log(code);
-
+    
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/", true);
     xhr.setRequestHeader("Content-type", "text/plain");
@@ -25,13 +35,6 @@ function execute(e) {
             console.log(data);
         }
     }
-
-    // xhr.send("foo=bar&lorem=ipsum"); 
-    xhr.send(code); 
-    // xhr.send(new Blob()); 
-    // xhr.send(new Int8Array()); 
-    // xhr.send({ form: 'data' }); 
-    // xhr.send(document);
-
+    xhr.send(code);
     return false;
 }
