@@ -19,7 +19,8 @@ var codeElement = document.getElementById("code"),
     errorsElement = document.getElementById("errors"),
     errorsUlElement = document.getElementById("errors-ul"),
     warningsElement = document.getElementById("warnings"),
-    warningsUlElement = document.getElementById("warnings-ul");
+    warningsUlElement = document.getElementById("warnings-ul"),
+    genericError = "Something went wrong while doing the request.";
 
 codeElement.addEventListener("keypress", execute);
 codeElement.focus();
@@ -34,8 +35,9 @@ function execute(e) {
     xhr.open("POST", "/", true);
     xhr.setRequestHeader("Content-type", "text/plain");
     xhr.onreadystatechange = function() {
-        if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
             if (xhr.getResponseHeader("Content-type") !== "application/json" || xhr.responseText === null) {
+                window.alert(genericError);
                 return;  // failure
             }
             var data = JSON.parse(xhr.responseText);
@@ -54,7 +56,10 @@ function execute(e) {
             appendAllToElement(outUlElement, data.out);
             appendAllToElement(errorsUlElement, data.errors);
             appendAllToElement(warningsUlElement, data.warnings);
+            
+            return;
         }
+
     }
     xhr.send(code);
     return false;
