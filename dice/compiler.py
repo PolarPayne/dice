@@ -21,10 +21,12 @@ def execute(s):
     }
     opts = DEFAULT_OPTIONS.copy()
 
+    # newlines matter
     for line in map(str.lower, s.split("\n")):
         line = line.strip()
         no_comments = []
 
+        # only read each line up to comment
         for char in line:
             if char == "#":
                 break
