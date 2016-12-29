@@ -8,9 +8,10 @@ WHITE_SPACE = " \t"
 VALID_CHARS = NUMS + WHITE_SPACE + operators.op_chars
 DEFAULT_OPTIONS = {
     "only_ints": False,
-    "rounding_mode": "none"  # none|ceil|floor
+    "rounding_mode": "none",  # none|ceil|floor
+    "defines": {}
 }
-GLOBALS = []
+GLOBALS = ["defines"]
 
 
 def execute(s):
@@ -22,7 +23,7 @@ def execute(s):
     opts = DEFAULT_OPTIONS.copy()
 
     # newlines matter
-    for line in map(str.lower, s.split("\n")):
+    for line in s.split("\n"):
         line = line.strip()
         no_comments = []
 
@@ -53,10 +54,31 @@ def execute(s):
                 opts[i[1]] = False
             else:
                 out["warnings"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
-        
+
+        elif i[0] == "define":
+            if i[1].upper() != i[1]:
+                out["errors"].append("Value of define must be all uppercase.")
+                break
+            if len(i) == 3:
+                opts["defines"][i[1].upper()] = i[2]
+            else:
+                out["warnings"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i)))
+
+        elif i[0] == "undefine":
+            if i[1].upper() != i[1]:
+                out["errors"].append("Value of undefine must be all uppercase.")
+                break
+            if len(i) == 2:
+                del opts["defines"][i[1].upper()]
+            else:
+                out["warnings"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i)))
+
         elif i[0] == "out":
             # add the line also to output??
-            out["out"].append(calculate(shunt(tokenize(" ".join(i[1:]), opts), opts), opts))
+            line = " ".join(i[1:])
+            for k, v in opts["defines"].items():
+                line = line.replace(k, v)
+            out["out"].append(calculate(shunt(tokenize(line, opts), opts), opts))
 
         else:
             out["warnings"].append("{} is not a recognized command.".format(i[0]))
