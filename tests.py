@@ -2,7 +2,7 @@ import dice
 
 def test():
     def g(s, res):
-        assert(dice.execute(s) == dice.execute(res))
+        assert(dice.execute_single(s) == dice.execute_single(res))
 
     with open("tests.txt", "r") as file:
         file.readline()

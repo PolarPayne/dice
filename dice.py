@@ -1,7 +1,6 @@
 from pprint import pprint
 from functools import lru_cache
 
-from exceptions import *
 import operators
 
 NUMS = "0123456789."
@@ -11,9 +10,10 @@ DEFAULT_OPTIONS = {
     "only_ints": False,
     "rounding_mode": "none"  # none|ceil|floor
 }
+GLOBALS = []
 
 
-def execute(s, options=None):
+def execute(s):
     opts = DEFAULT_OPTIONS.copy()
 
     for line in map(str.lower, s.split("\n")):
@@ -21,16 +21,37 @@ def execute(s, options=None):
         if len(i) == 0:
             continue
 
+        if i[0] == "set" or i[0] == "unset":
+            if i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS:
+                raise RuntimeError("{} is not a valid option to set or unset.".format(i[1]))
+
         if i[0] == "set":
             if len(i) == 2:
                 opts[i[1]] = True
             elif len(i) == 3:
                 opts[i[1]] = i[2]
+            else:
+                raise RuntimeError("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
+        
         elif i[0] == "unset":
             if len(i) == 2:
                 opts[i[1]] = False
+            else:
+                raise RuntimeError("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
+        
         elif i[0] == "out":
             yield calculate(shunt(tokenize(" ".join(i[1:]), opts), opts), opts)
+
+        else:
+            raise RuntimeError("{} is not a recognized command.".format(i[0]))
+
+
+def execute_single(s, options=None):
+    opts = DEFAULT_OPTIONS.copy()
+    if options is not None:
+        opts.update(options)
+    
+    return calculate(shunt(tokenize(s, opts), opts), opts)
 
 
 def calculate(tokens, options=None):
