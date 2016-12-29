@@ -6,5 +6,7 @@
   * improved dice operator
 * lists ?
 * functions ?
+* code colouring
+* code line number
 * return graphable data for each output
   * graph it on client side
