@@ -1,0 +1,3 @@
+* commenting with #
+* proper better dice operator and choose operator
+* documentation
