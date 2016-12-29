@@ -59,6 +59,7 @@ def execute(s):
                 for char in i[1]:
                     if char not in LITERAL:
                         opts["errors"].append("Invalid literal for define.")
+                        break
 
                 opts["defines"][i[1].upper()] = i[2]
             else:
