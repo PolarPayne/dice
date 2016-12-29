@@ -5,7 +5,7 @@
 * operators
   * choose
   * improved dice operator
-* if, elif, endif
+* if, elif, else
 * while, for
 * lists ?
 * functions ?
