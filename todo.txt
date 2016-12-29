@@ -1,5 +1,4 @@
 * documentation
-* commenting with #
 * c style define
 * variables
 * operators

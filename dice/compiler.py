@@ -17,7 +17,15 @@ def execute(s):
     opts = DEFAULT_OPTIONS.copy()
 
     for line in map(str.lower, s.split("\n")):
-        i = line.strip().split()
+        line = line.strip()
+        no_comments = []
+
+        for char in line:
+            if char == "#":
+                break
+            no_comments.append(char)
+
+        i = "".join(no_comments).split()
         if len(i) == 0:
             continue
 
