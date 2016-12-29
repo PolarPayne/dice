@@ -84,8 +84,8 @@ def execute(s):
             line = " ".join(i[1:])
             for k, v in opts["defines"].items():
                 line = line.replace(k, v)
-            line = line.lower()
-            out.append(calculate(shunt(tokenize(line, opts), opts), opts))
+
+            out.append(line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts)))
 
         else:
             opts["errors"].append("{} is not a recognized command.".format(i[0]))
