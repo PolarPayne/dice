@@ -1,5 +1,6 @@
 from pprint import pprint
 from functools import lru_cache
+from copy import deepcopy
 
 from . import operators
 
@@ -18,9 +19,9 @@ GLOBALS = ["defines", "errors"]
 
 def execute(s):
     out = []
-    opts = DEFAULT_OPTIONS.copy()
+    opts = deepcopy(DEFAULT_OPTIONS)
 
-    # newlines matter
+    # our language is line orientated
     for line in s.split("\n"):
         line = line.strip()
         no_comments = []
@@ -36,7 +37,7 @@ def execute(s):
             continue
 
         if i[0] == "set" or i[0] == "unset":
-            if i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS:
+            if len(i) > 1 and (i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS):
                 opts["errors"].append("{} is not a valid option to set or unset.".format(i[1]))
 
         if i[0] == "set":
@@ -45,13 +46,13 @@ def execute(s):
             elif len(i) == 3:
                 opts[i[1]] = i[2]
             else:
-                opts["errors"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i) - 1))
         
         elif i[0] == "unset":
             if len(i) == 2:
                 opts[i[1]] = False
             else:
-                opts["errors"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i) - 1))
 
         elif i[0] == "define":
             if len(i) == 3:
@@ -61,7 +62,7 @@ def execute(s):
 
                 opts["defines"][i[1].upper()] = i[2]
             else:
-                opts["errors"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i) - 1))
 
         elif i[0] == "undefine":
             if len(i) == 3:
@@ -71,7 +72,7 @@ def execute(s):
             if len(i) == 2:
                 del opts["defines"][i[1].upper()]
             else:
-                opts["errors"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i) - 1))
 
         elif i[0] == "out":
             # if there are any errors, just skip all out commands

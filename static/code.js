@@ -30,9 +30,10 @@ function execute(e) {
     if ((e !== undefined && !e.ctrlKey) || executeButton.disabled)
         return;
     
-    console.log("execute()");
 
     var code = codeElement.value;
+    console.log("execute()");
+    console.log(code);
     
     document.body.style = "cursor: wait;";
     executeButton.disabled = true;
