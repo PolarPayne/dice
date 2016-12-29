@@ -14,6 +14,11 @@ GLOBALS = []
 
 
 def execute(s):
+    out = {
+        "out": [],
+        "warnings": [],
+        "errors": []
+    }
     opts = DEFAULT_OPTIONS.copy()
 
     for line in map(str.lower, s.split("\n")):
@@ -31,7 +36,7 @@ def execute(s):
 
         if i[0] == "set" or i[0] == "unset":
             if i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS:
-                raise RuntimeError("{} is not a valid option to set or unset.".format(i[1]))
+                out["warnings"].append("{} is not a valid option to set or unset.".format(i[1]))
 
         if i[0] == "set":
             if len(i) == 2:
@@ -39,20 +44,22 @@ def execute(s):
             elif len(i) == 3:
                 opts[i[1]] = i[2]
             else:
-                raise RuntimeError("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
+                out["warnings"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
         
         elif i[0] == "unset":
             if len(i) == 2:
                 opts[i[1]] = False
             else:
-                raise RuntimeError("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
+                out["warnings"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
         
         elif i[0] == "out":
-            yield calculate(shunt(tokenize(" ".join(i[1:]), opts), opts), opts)
+            # add the line also to output??
+            out["out"].append(calculate(shunt(tokenize(" ".join(i[1:]), opts), opts), opts))
 
         else:
-            raise RuntimeError("{} is not a recognized command.".format(i[0]))
+            out["warnings"].append("{} is not a recognized command.".format(i[0]))
 
+    return out
 
 def execute_single(s, options=None):
     opts = DEFAULT_OPTIONS.copy()
