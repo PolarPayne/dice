@@ -1,0 +1,23 @@
+body {
+    background: #fff7ef;
+}
+
+h1 {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+textarea {
+    font-family: monospace;
+    width: 100%;
+    height: 40ex;
+}
+
+#container {
+    margin: 1em auto;
+    background-color: #fffcf9;
+    max-width: 40em;
+    border: #000000;
+    border-style: double;
+    padding: 1em 2em;
+}
