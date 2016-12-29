@@ -1,3 +1,11 @@
-* commenting with #
-* proper better dice operator and choose operator
 * documentation
+* commenting with #
+* c style define
+* variables
+* operators
+  * choose
+  * improved dice operator
+* lists ?
+* functions ?
+* return graphable data for each output
+  * graph it on client side
