@@ -12,9 +12,10 @@ DEFAULT_OPTIONS = {
     "only_ints": False,
     "rounding_mode": "none",  # none|ceil|floor
     "defines": {},
-    "errors": []
+    "errors": [],
+    "dice_rolls": []
 }
-GLOBALS = ["defines", "errors"]
+GLOBALS = ["defines", "errors", "dice_rolls"]
 
 
 def execute(s):
@@ -85,7 +86,11 @@ def execute(s):
             for k, v in opts["defines"].items():
                 line = line.replace(k, v)
 
-            out.append(line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts)))
+            a = line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts))
+            a += " (" + ", ".join(opts["dice_rolls"]) + ")"
+
+            out.append(a)
+            opts["dice_rolls"] = []
 
         else:
             opts["errors"].append("{} is not a recognized command.".format(i[0]))

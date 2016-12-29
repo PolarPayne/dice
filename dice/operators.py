@@ -176,14 +176,16 @@ def op_pow(a, b, options):
 
 
 def op_dice(a, b, options):
-    if type(a) is int and type(b) is int:
-        return sum([randint(1, b) for _ in range(a)])
+    if type(a) is int:
+        return sum(op_udice(b, options) for _ in range(a))
     raise RuntimeError("Dice operator requires ints.")
 
 
 def op_udice(a, options):
     if type(a) is int:
-        return randint(1, a)
+        res = randint(1, a)
+        options["dice_rolls"].append("d{} = {}".format(a, res))
+        return res
     raise RuntimeError("Dice operator requires ints.")
 
 
