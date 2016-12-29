@@ -18,9 +18,7 @@ var codeElement = document.getElementById("code"),
     outElement = document.getElementById("out"),
     outUlElement = document.getElementById("out-ul"),
     errorsElement = document.getElementById("errors"),
-    errorsUlElement = document.getElementById("errors-ul"),
-    warningsElement = document.getElementById("warnings"),
-    warningsUlElement = document.getElementById("warnings-ul");
+    errorsUlElement = document.getElementById("errors-ul");
 
 codeElement.addEventListener("keypress", execute);
 codeElement.focus();
@@ -59,7 +57,7 @@ function execute(e) {
                 var li = null;
                 while (element.firstChild)
                     element.removeChild(element.firstChild);
-                
+
                 for (var i = 0; i < list.length; i++) {
                     li = document.createElement("li");
                     li.innerText = list[i];
@@ -69,7 +67,6 @@ function execute(e) {
 
             appendAllToElement(outUlElement, data.out);
             appendAllToElement(errorsUlElement, data.errors);
-            appendAllToElement(warningsUlElement, data.warnings);
             
             return;
         }

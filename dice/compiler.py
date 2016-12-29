@@ -6,20 +6,18 @@ from . import operators
 NUMS = "0123456789."
 WHITE_SPACE = " \t"
 VALID_CHARS = NUMS + WHITE_SPACE + operators.op_chars
+LITERAL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 DEFAULT_OPTIONS = {
     "only_ints": False,
     "rounding_mode": "none",  # none|ceil|floor
-    "defines": {}
+    "defines": {},
+    "errors": []
 }
-GLOBALS = ["defines"]
+GLOBALS = ["defines", "errors"]
 
 
 def execute(s):
-    out = {
-        "out": [],
-        "warnings": [],
-        "errors": []
-    }
+    out = []
     opts = DEFAULT_OPTIONS.copy()
 
     # newlines matter
@@ -39,7 +37,7 @@ def execute(s):
 
         if i[0] == "set" or i[0] == "unset":
             if i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS:
-                out["warnings"].append("{} is not a valid option to set or unset.".format(i[1]))
+                opts["errors"].append("{} is not a valid option to set or unset.".format(i[1]))
 
         if i[0] == "set":
             if len(i) == 2:
@@ -47,43 +45,53 @@ def execute(s):
             elif len(i) == 3:
                 opts[i[1]] = i[2]
             else:
-                out["warnings"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i)))
         
         elif i[0] == "unset":
             if len(i) == 2:
                 opts[i[1]] = False
             else:
-                out["warnings"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i)))
 
         elif i[0] == "define":
-            if i[1].upper() != i[1]:
-                out["errors"].append("Value of define must be all uppercase.")
-                break
             if len(i) == 3:
+                for char in i[1]:
+                    if char not in LITERAL:
+                        opts["errors"].append("Invalid literal for define.")
+
                 opts["defines"][i[1].upper()] = i[2]
             else:
-                out["warnings"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i)))
 
         elif i[0] == "undefine":
-            if i[1].upper() != i[1]:
-                out["errors"].append("Value of undefine must be all uppercase.")
-                break
+            if len(i) == 3:
+                for char in i[1]:
+                    if char not in LITERAL:
+                        opts["errors"].append("Invalid literal for define.")
             if len(i) == 2:
                 del opts["defines"][i[1].upper()]
             else:
-                out["warnings"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i)))
+                opts["errors"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i)))
 
         elif i[0] == "out":
+            # if there are any errors, just skip all out commands
+            if len(opts["errors"]) > 0:
+                continue
+
             # add the line also to output??
             line = " ".join(i[1:])
             for k, v in opts["defines"].items():
                 line = line.replace(k, v)
-            out["out"].append(calculate(shunt(tokenize(line, opts), opts), opts))
+            line = line.lower()
+            out.append(calculate(shunt(tokenize(line, opts), opts), opts))
 
         else:
-            out["warnings"].append("{} is not a recognized command.".format(i[0]))
+            opts["errors"].append("{} is not a recognized command.".format(i[0]))
 
-    return out
+    return {
+        "out": out,
+        "errors": opts["errors"]
+    }
 
 def execute_single(s, options=None):
     opts = DEFAULT_OPTIONS.copy()
