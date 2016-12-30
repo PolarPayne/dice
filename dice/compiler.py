@@ -131,7 +131,7 @@ def calculate(tokens, options=None):
             raise RuntimeError("This should never happen.")
     if len(out) == 1:
         return out[0]
-    options["errors"].append("Invalid calculation.")
+    options["errors"].append("Invalid calculation ({} values were still left in the stack (which were {})).".format(len(out), out))
     return None
 
 
