@@ -83,6 +83,9 @@ class OpToken(Token):
         self.unary = unary
         self.bracket = bracket
 
+    def is_bracket(self):
+        return self.is_left_bracket() or self.is_right_bracket()
+
     def is_left_bracket(self):
         return self.bracket is Bracket.left
 
