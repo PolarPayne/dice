@@ -244,5 +244,5 @@ binary_to_unary = {
     "d": "D"
 }
 
-op_chars = "|&=<>+-*/%^d()"
+op_chars = "|&=<>+-*/%^d()!"
 double_op_chars = "".join(set("".join(i for i in ops if len(i) == 2)))
