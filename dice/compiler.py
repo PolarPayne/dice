@@ -86,10 +86,13 @@ def execute(s):
             for k, v in opts["defines"].items():
                 line = line.replace(k, v)
 
-            a = line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts))
-            a += " (" + ", ".join(opts["dice_rolls"]) + ")"
+            try:
+                a = line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts))
+                a += " (" + ", ".join(opts["dice_rolls"]) + ")"
 
-            out.append(a)
+                out.append(a)
+            except operators.NumberError as e:
+                opts["errors"].append(e.args)
             opts["dice_rolls"] = []
 
         else:
@@ -128,7 +131,8 @@ def calculate(tokens, options=None):
             raise RuntimeError("This should never happen.")
     if len(out) == 1:
         return out[0]
-    raise RuntimeError("Invalid calculation.")
+    options["errors"].append("Invalid calculation.")
+    return None
 
 
 def shunt(tokens, options=None):
@@ -178,8 +182,10 @@ def tokenize(s, options=None):
                 out += i
             elif i in WHITE_SPACE:
                 continue
-            else:
+            elif i in VALID_CHARS:
                 break
+            else:
+                raise operators.NumberError("{} is not a valid character in number.".format(i))
         else:
             a = len(s)
 
@@ -210,7 +216,8 @@ def tokenize(s, options=None):
         elif s[0] in VALID_CHARS:
             a, s = read_op(out, s)
         else:
-            raise RuntimeError("Invalid character!")
+            options["errors"].append("Invalid character.")
+            return tuple()
 
         out.append(a)
 

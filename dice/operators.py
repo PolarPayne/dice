@@ -3,6 +3,10 @@ from random import randint
 from math import ceil, floor
 
 
+class NumberError(Exception):
+    pass
+
+
 class TokenType(Enum):
     op = 0
     int = 1
@@ -49,12 +53,12 @@ class NumToken(Token):
                     super().__init__(TokenType.float)
                     
                     if options["only_ints"]:
-                        raise RuntimeError("Non-integer encountered in only_ints mode.")
+                        raise NumberError("Non-integer encountered in only_ints mode.")
                 else:
-                    raise RuntimeError("Invalid rounding mode option.")
+                    raise NumberError("Invalid rounding mode option.")
 
             except ValueError:
-                raise RuntimeError("Badly formatted number")
+                raise NumberError("Badly formatted number")
 
     def __str__(self):
         return "{:<3} type={}".format(
@@ -178,7 +182,7 @@ def op_pow(a, b, options):
 def op_dice(a, b, options):
     if type(a) is int:
         return sum(op_udice(b, options) for _ in range(a))
-    raise RuntimeError("Dice operator requires ints.")
+    options["errors"].append("Dice operator requires ints.")
 
 
 def op_udice(a, options):
@@ -186,7 +190,7 @@ def op_udice(a, options):
         res = randint(1, a)
         options["dice_rolls"].append("d{} = {}".format(a, res))
         return res
-    raise RuntimeError("Dice operator requires ints.")
+    options["options"].append("Dice operator requires ints.")
 
 
 def op_not(a, options):
