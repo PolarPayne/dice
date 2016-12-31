@@ -194,9 +194,6 @@ def tokenize(s, options=None):
             if len(s) > 1 and s[0:2] in operators.ops:
                 return operators.ops[s[0:2]], s[2:]
 
-        # there is a problem in here with recogninzing possible unary
-        # opearators that are before brackets
-
         # brackets are special, they are not really operators
         if s[0] not in "()":
             # if the last token is an operator but not a bracket
