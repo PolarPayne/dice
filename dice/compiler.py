@@ -69,7 +69,6 @@ def execute(s):
             else:
                 opts["errors"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i) - 1))
 
-        # TODO: support regex'
         # c style define
         elif command == "define":
             if len(i) > 2:
