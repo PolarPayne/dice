@@ -1,5 +1,6 @@
 * documentation
 * more tests
+* favicon
 * multiline lines
 * variables
 * operators
