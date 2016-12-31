@@ -43,16 +43,24 @@ function execute(e) {
     xhr.open("POST", "/", true);
     xhr.setRequestHeader("Content-type", "text/plain");
     xhr.onreadystatechange = function() {
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+            return;
+        }
+
         document.body.style = "";
         executeButton.disabled = false;
         executeButton.textContent = "Execute";
 
-        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+        if (xhr.status == 500) {
+            return window.alert(
+                "The server encountered an error parsing the input.\n" + 
+                "Sorry about that..."
+            );
+        } else if (xhr.status == 200) {
             if (xhr.getResponseHeader("Content-type") !== "application/json" || xhr.responseText === null) {
                 return;  // failure
             }
             var data = JSON.parse(xhr.responseText);
-            console.log(data);
             
             function appendAllToElement(element, list) {
                 var li = null;
