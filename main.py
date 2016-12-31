@@ -8,9 +8,7 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        code = request.data.decode("utf-8")
-        
-        return json.jsonify(dice.execute(code))
+        return json.jsonify(dice.execute(request.data.decode("utf-8")))
 
     return render_template("index.html", code="")
 
