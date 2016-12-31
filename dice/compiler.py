@@ -36,11 +36,25 @@ def execute(s):
         if len(i) == 0:
             continue
 
-        if i[0] == "set" or i[0] == "unset":
+        rest = line.replace(i[0], "", 1).strip()
+        print("rest =", rest)
+
+        # tolerate all kinds of capitalisations in command
+        command = i[0].lower()
+
+        if command == "set" or command == "unset":
+            # set and unset require at least 1 argument, and
+            # the first argument must be in DEFAULT_OPTIONS but
+            # not in GLOBALS
             if len(i) > 1 and (i[1] in GLOBALS or i[1] not in DEFAULT_OPTIONS):
                 opts["errors"].append("{} is not a valid option to set or unset.".format(i[1]))
+                break
 
-        if i[0] == "set":
+            # tolerate all kinds of capitalisations in the first value to set and unset
+            i[1] = i[1].lower()
+
+        # sets an option to a value, if used with just one argument sets it to true
+        if command == "set":
             if len(i) == 2:
                 opts[i[1]] = True
             elif len(i) == 3:
@@ -48,53 +62,61 @@ def execute(s):
             else:
                 opts["errors"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i) - 1))
 
-        elif i[0] == "unset":
+        # return an option to its default value
+        elif command == "unset":
             if len(i) == 2:
-                opts[i[1]] = False
+                opts[i[1]] = DEFAULT_OPTIONS[i[1]]
             else:
                 opts["errors"].append("Wrong number of arguments to unset (expected 1, got {})".format(len(i) - 1))
 
-        elif i[0] == "define":
-            if len(i) == 3:
+        # TODO: support regex'
+        # c style define
+        elif command == "define":
+            if len(i) > 2:
                 for char in i[1]:
                     if char not in LITERAL:
                         opts["errors"].append("Invalid literal for define.")
                         break
 
-                opts["defines"][i[1].upper()] = i[2]
+                to = rest.replace(i[1], "", 1).strip()
+                opts["defines"][i[1].upper()] = to
             else:
                 opts["errors"].append("Wrong number of arguments to define (expected 2, got {})".format(len(i) - 1))
 
-        elif i[0] == "undefine":
-            if len(i) == 3:
+        # removes a define
+        elif command == "undefine":
+            if len(i) == 2:
                 for char in i[1]:
                     if char not in LITERAL:
-                        opts["errors"].append("Invalid literal for define.")
-            if len(i) == 2:
-                del opts["defines"][i[1].upper()]
+                        opts["errors"].append("Invalid literal for undefine.")
+                        break
+                else:
+                    del opts["defines"][i[1].upper()]
             else:
                 opts["errors"].append("Wrong number of arguments to undefine (expected 1, got {})".format(len(i) - 1))
 
-        elif i[0] == "out":
+        # the output command calculates the given expression and return the result
+        elif command == "out":
             # if there are any errors, just skip all out commands
             if len(opts["errors"]) > 0:
                 continue
 
-            line = " ".join(i[1:])
             for k, v in opts["defines"].items():
-                line = line.replace(k, v)
+                rest = rest.replace(k, v)
 
             try:
-                a = line + " = " + str(calculate(shunt(tokenize(line, opts), opts), opts))
-                a += " (" + ", ".join(opts["dice_rolls"]) + ")"
+                a = "{} = {}".format(rest, str(calculate(shunt(tokenize(rest, opts), opts), opts)))
+                if len(opts["dice_rolls"]) > 0:
+                    a += " (" + ", ".join(opts["dice_rolls"]) + ")"
+
+                opts["dice_rolls"] = []
 
                 out.append(a)
             except (operators.NumberError, operators.OperatorError) as e:
                 opts["errors"].append(e.args)
-            opts["dice_rolls"] = []
 
         else:
-            opts["errors"].append("{} is not a recognized command.".format(i[0]))
+            opts["errors"].append("{} is not a recognized command.".format(command))
 
     return {
         "out": out,
@@ -220,6 +242,7 @@ def tokenize(s, options=None):
         options = DEFAULT_OPTIONS
 
     out = []
+    orig = s
 
     while len(s):
         if s[0] in WHITE_SPACE:
@@ -230,7 +253,7 @@ def tokenize(s, options=None):
         elif s[0] in VALID_CHARS:
             a, s = read_op(out, s)
         else:
-            options["errors"].append("Invalid character.")
+            options["errors"].append("Expression {} contained an invalid character {}.".format(orig, s[0]))
             return tuple()
 
         out.append(a)
