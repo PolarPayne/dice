@@ -15,9 +15,9 @@
     <h2 onclick="return toggleTipsHints()"
         style="cursor: pointer;"
         title="Click to toggle tips and hints.">
-    
+
         Tips & hints
-    
+
     </h2>
     <div id="tips-hints">
         <p>ctrl + enter to execute.</p>
@@ -44,6 +44,10 @@
     <hr>
     <p style="text-align: center;">Created by: <a href="http://remming.fi">Maximilian Remming</a></p>
 </div>
+{% if debug %}
 <script src="/static/code.js"></script>
+{% else %}
+<script src="/static/code.min.js"></script>
+{% endif %}
 </body>
 </html>

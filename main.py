@@ -5,6 +5,11 @@ import dice
 app = Flask(__name__)
 
 
+@app.context_processor
+def inject_debug():
+    return { "debug": app.debug }
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -14,3 +19,4 @@ def index():
 
 if __name__ == "__main__":
     app.run()
+    print(app.debug)
