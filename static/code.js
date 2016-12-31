@@ -15,9 +15,7 @@ function toggleTipsHints() {
 
 var codeElement = document.getElementById("code"),
     executeButton = document.getElementById("execute-button"),
-    outElement = document.getElementById("out"),
     outUlElement = document.getElementById("out-ul"),
-    errorsElement = document.getElementById("errors"),
     errorsUlElement = document.getElementById("errors-ul");
 
 codeElement.addEventListener("keypress", execute);
