@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, json
 
 import dice
 
-app = Flask(__name__)
+application = Flask(__name__)
+app = application
 
 
 @app.context_processor
