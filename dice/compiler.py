@@ -48,7 +48,7 @@ def execute(s):
                 opts[i[1]] = i[2]
             else:
                 opts["errors"].append("Wrong number of arguments to set (expected 1 or 2, got {}).".format(len(i) - 1))
-        
+
         elif i[0] == "unset":
             if len(i) == 2:
                 opts[i[1]] = False
@@ -81,7 +81,6 @@ def execute(s):
             if len(opts["errors"]) > 0:
                 continue
 
-            # add the line also to output??
             line = " ".join(i[1:])
             for k, v in opts["defines"].items():
                 line = line.replace(k, v)
@@ -91,7 +90,7 @@ def execute(s):
                 a += " (" + ", ".join(opts["dice_rolls"]) + ")"
 
                 out.append(a)
-            except operators.NumberError as e:
+            except (operators.NumberError, operators.OperatorError) as e:
                 opts["errors"].append(e.args)
             opts["dice_rolls"] = []
 
@@ -107,7 +106,7 @@ def execute_single(s, options=None):
     opts = DEFAULT_OPTIONS.copy()
     if options is not None:
         opts.update(options)
-    
+
     return calculate(shunt(tokenize(s, opts), opts), opts)
 
 
@@ -138,9 +137,11 @@ def calculate(tokens, options=None):
 def shunt(tokens, options=None):
     if options is None:
         options = DEFAULT_OPTIONS
-        
+
     out = []
     ops = []
+
+    print(tokens)
 
     for token in tokens:
         if token.is_num():
@@ -196,15 +197,39 @@ def tokenize(s, options=None):
             if len(s) > 1 and s[0:2] in operators.ops:
                 return operators.ops[s[0:2]], s[2:]
 
-        if len(out) == 0 or out[-1].is_op():
-            if s[0] in operators.binary_to_unary:
-                s = operators.binary_to_unary[s[0]] + s[1:]
+        # there is a problem in here with recogninzing possible unary
+        # opearators that are before brackets
+
+        # brackets are special, they are not really operators
+        if s[0] not in "()":
+            # if the last token is an operator but not a bracket
+            # then this must also be a unary operator
+            print("checking", s[0])
+            for token in reversed(out):
+                print(token)
+                # if it's a number then this is not a unary operator
+                if token.is_num():
+                    print("is num")
+                    return operators.ops[s[0]], s[1:]
+
+                # if it's a bracket we continue
+                elif token.is_bracket():
+                    print("is bracket")
+                    continue
+
+                # else it's an operator, therefore this must be a unary operator
+                else:
+                    print("is op")
+                    s = operators.binary_to_unary(s[0]) + s[1:]
+                    operators.ops[s[0]], s[1:]
+
+            s = operators.binary_to_unary(s[0]) + s[1:]
 
         return operators.ops[s[0]], s[1:]
 
     if options is None:
         options = DEFAULT_OPTIONS
-        
+
     out = []
 
     while len(s):

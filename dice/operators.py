@@ -7,6 +7,10 @@ class NumberError(Exception):
     pass
 
 
+class OperatorError(Exception):
+    pass
+
+
 class TokenType(Enum):
     op = 0
     int = 1
@@ -124,6 +128,18 @@ class OpToken(Token):
         return self.prec >= value.prec
 
 
+def binary_to_unary(t):
+    a = {
+        "-": "#",
+        "+": "$",
+        "d": "D"
+    }
+    if t in a:
+        return a[t]
+    else:
+        raise OperatorError("{} is not a valid unary operator.".format(t))
+
+
 def op_or(a, b, options):
     return a if a != 0 else b
 
@@ -237,12 +253,5 @@ ops = {
     "(":  OpToken("(",  9, op_brackets, bracket=Bracket.left     ),
     ")":  OpToken(")",  0, op_brackets, bracket=Bracket.right    )
 }
-
-binary_to_unary = {
-    "-": "#",
-    "+": "$",
-    "d": "D"
-}
-
 op_chars = "|&=<>+-*/%^d()!"
 double_op_chars = "".join(set("".join(i for i in ops if len(i) == 2)))
