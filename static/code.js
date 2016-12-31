@@ -29,12 +29,10 @@ function execute(e) {
     // only allow to execute once the previous one is complete
     if ((e !== undefined && !e.ctrlKey) || executeButton.disabled)
         return;
-    
+
 
     var code = codeElement.value;
-    console.log("execute()");
-    console.log(code);
-    
+
     document.body.style = "cursor: wait;";
     executeButton.disabled = true;
     executeButton.textContent = "Executing...";
@@ -53,7 +51,7 @@ function execute(e) {
 
         if (xhr.status == 500) {
             return window.alert(
-                "The server encountered an error parsing the input.\n" + 
+                "The server encountered an error parsing the input.\n" +
                 "Sorry about that..."
             );
         } else if (xhr.status == 200) {
@@ -61,7 +59,7 @@ function execute(e) {
                 return;  // failure
             }
             var data = JSON.parse(xhr.responseText);
-            
+
             function appendAllToElement(element, list) {
                 var li = null;
                 while (element.firstChild)
@@ -76,7 +74,7 @@ function execute(e) {
 
             appendAllToElement(outUlElement, data.out);
             appendAllToElement(errorsUlElement, data.errors);
-            
+
             return;
         }
     }

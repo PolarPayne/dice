@@ -7,7 +7,6 @@ def test():
     with open("tests.txt", "r") as file:
         file.readline()
         for line in file:
-            print(line)
             line = line.strip().split()
             if len(line) == 2:
                 yield g, line[0], line[1]

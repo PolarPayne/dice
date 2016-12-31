@@ -1,4 +1,3 @@
-from pprint import pprint
 from functools import lru_cache
 from copy import deepcopy
 
@@ -141,8 +140,6 @@ def shunt(tokens, options=None):
     out = []
     ops = []
 
-    print(tokens)
-
     for token in tokens:
         if token.is_num():
             out.append(token)
@@ -204,22 +201,17 @@ def tokenize(s, options=None):
         if s[0] not in "()":
             # if the last token is an operator but not a bracket
             # then this must also be a unary operator
-            print("checking", s[0])
             for token in reversed(out):
-                print(token)
                 # if it's a number then this is not a unary operator
                 if token.is_num():
-                    print("is num")
                     return operators.ops[s[0]], s[1:]
 
                 # if it's a bracket we continue
                 elif token.is_bracket():
-                    print("is bracket")
                     continue
 
                 # else it's an operator, therefore this must be a unary operator
                 else:
-                    print("is op")
                     s = operators.binary_to_unary(s[0]) + s[1:]
                     operators.ops[s[0]], s[1:]
 
