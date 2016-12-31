@@ -213,7 +213,7 @@ def tokenize(s, options=None):
                 # else it's an operator, therefore this must be a unary operator
                 else:
                     s = operators.binary_to_unary(s[0]) + s[1:]
-                    operators.ops[s[0]], s[1:]
+                    return operators.ops[s[0]], s[1:]
 
             s = operators.binary_to_unary(s[0]) + s[1:]
 
