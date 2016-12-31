@@ -7,6 +7,10 @@ h1 {
     text-align: center;
 }
 
+#tips-hints h3 {
+    text-decoration: underline;
+}
+
 textarea {
     font-family: monospace;
     width: 100%;

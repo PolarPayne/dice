@@ -20,7 +20,32 @@
 
     </h2>
     <div id="tips-hints">
+        <h3>General</h3>
         <p>ctrl + enter to execute.</p>
+
+        <h3>Commands</h3>
+        <p>
+            Only one command per line.
+            Whitespace is trimmed from start and end
+            before executing the lines
+            (only tabs and spaces are considered whitespace).
+        </p>
+
+        <h3>OUT</h3>
+        <p>Sets an option to a value.</p>
+
+        <h3>UNSET</h3>
+        <p>Returns the option to its default value.</p>
+
+        <h3>DEFINE</h3>
+
+        <h3>UNDEFINE</h3>
+
+        <h3>OUT</h3>
+        <p>
+            `out command` to calculate something,
+            for example `out 1+1` will return 2.
+        </p>
     </div>
 
     <form onsubmit="return execute()">
