@@ -1,5 +1,5 @@
 var tipsHintsElement = document.getElementById("tips-hints"),
-    tipsHintsVisible = true;
+    tipsHintsVisible = false;
 
 
 function toggleTipsHints() {
