@@ -222,11 +222,3 @@ def tokenize(s, options=None):
         out.append(a)
 
     return tuple(out)
-
-if __name__ == "__main__":
-    import sys
-    s = ""
-    for line in sys.stdin:
-        s += line
-    for i in execute(s):
-        print(i)
