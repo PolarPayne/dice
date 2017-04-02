@@ -1,2 +1,3 @@
 pytest>=3.0.7,<4.0.0
 PyYAML>=3.0.8
+Hypothesis>=3.7.0
