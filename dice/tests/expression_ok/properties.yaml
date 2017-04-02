@@ -1,0 +1,99 @@
+- result: 4
+  expressions:
+  - 2*(1+1)
+  - (1+1)*2
+- result: 3
+  expressions:
+  - 2*1+1
+  - 1+1*2
+  - (2*1)+1
+  - 1+(1*2)
+
+- result: 3.5
+  expressions:
+  - 7/2
+  - 7.0/2
+  - 7/2.0
+  - 7.0/2.0
+
+- result: 0.5
+  expressions:
+  - 1/2
+  - 1.0/2
+  - 1/2.0
+  - 1.0/2.0
+
+- result: 1
+  expressions:
+  - "1"
+  - --1
+  - ----1
+  - ------1
+- result: -1
+  expressions:
+  - "-1"
+  - ---1
+  - -----1
+  - -------1
+
+- result: 2
+  expressions:
+  - 1+1
+  - 1+--1
+  - 1+----1
+- result: 0
+  expressions:
+  - 1+-1
+  - 1+---1
+  - 1+-----1
+
+- result: 2
+  expressions:
+  - 1+1
+  - 1++1
+  - 1+++1
+  - 1++++1
+  - 1+++++1
+
+- result: 0
+  expressions:
+  - 1-1
+  - 1---1
+  - 1-----1
+- result: 2
+  expressions:
+  - 1--1
+  - 1----1
+  - 1------1
+
+- r: 256
+  e: 2^2^3
+- r: 64
+  e: (2^2)^3
+
+- r: 2*15
+  e: 15*2
+- r: 2+15
+  e: 15+2
+
+# associativity, commutativity, distributivity and identity
+- result: 6
+  expressions:
+    - 2+4
+    - 4+2
+    - 1+2+3
+    - 3+2+1
+    - (1+2)+3
+    - 1+(2+3)
+    - 6+0
+- result: 60
+  expressions:
+    - 4*15
+    - 15*4
+    - 3*4*5
+    - 5*4*3
+    - (3*4)*5
+    - 3*(4*5)
+    - 4*(7+8)
+    - 4*7+4*8
+    - 60*1
