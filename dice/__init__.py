@@ -1,2 +1,1 @@
-from .compiler import execute, execute_single
-execute_expression = execute_single
+from .compiler import execute, execute_expression

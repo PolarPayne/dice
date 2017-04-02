@@ -122,7 +122,7 @@ def execute(s):
         "errors": opts["errors"]
     }
 
-def execute_single(s, options=None):
+def execute_expression(s, options=None):
     opts = DEFAULT_OPTIONS.copy()
     if options is not None:
         opts.update(options)

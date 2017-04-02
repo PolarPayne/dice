@@ -1,7 +1,6 @@
 import os
 import yaml
-import dice
-
+from dice import execute, execute_expression
 
 def files_in_dir(path):
     def g(path):
@@ -18,7 +17,7 @@ def pytest_generate_tests(metafunc):
             value = expression_ok[key]
 
             if type(value) is str:
-                return [dice.execute_expression(value)]
+                return [execute_expression(value)]
             elif type(value) in (int, float):
                 return [value]
             elif type(value) is list:
@@ -88,12 +87,12 @@ def pytest_generate_tests(metafunc):
 
 def test_expression_ok(expression_ok, results):
     if len(results) == 1:
-        assert dice.execute_expression(expression_ok) in results
+        assert execute_expression(expression_ok) in results
     elif len(results) > 1:
         hits = set()
         tries = 0
         for _ in range(2**16):
-            res = dice.execute_expression(expression_ok)
+            res = execute_expression(expression_ok)
             assert res in results
             hits.add(res)
         assert len(hits) == len(results)
