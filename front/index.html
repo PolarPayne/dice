@@ -42,6 +42,12 @@
         </p>
 
         <h3>OUT</h3>
+        <p>
+            `out command` to calculate something,
+            for example `out 1+1` will return 2.
+        </p>
+
+        <h3>SET</h3>
         <p>Sets an option to a value.</p>
 
         <h3>UNSET</h3>
@@ -51,15 +57,10 @@
 
         <h3>UNDEFINE</h3>
 
-        <h3>OUT</h3>
-        <p>
-            `out command` to calculate something,
-            for example `out 1+1` will return 2.
-        </p>
     </div>
 
     <form onsubmit="return execute()">
-        <textarea id="code">{{ code }}</textarea>
+        <textarea id="code"></textarea>
         <button id="execute-button" type="submit">Execute</button>
     </form>
     <hr>
